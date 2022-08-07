@@ -1,3 +1,4 @@
+from re import T
 import pygame, sys, time
 from settings import *
 from sprites import BG, Ground, Obstacle, Player
@@ -9,6 +10,7 @@ class Game():
     self.display_surface = pygame.display.set_mode( (WINDOW_WIDTH, WINDOW_HEIGHT) )
     pygame.display.set_caption('Flappy Python')
     self.clock = pygame.time.Clock()
+    self.active = True
 
     #sprite groups
     self.all_sprites = pygame.sprite.Group()
@@ -30,19 +32,33 @@ class Game():
     #text
     self.font = pygame.font.Font('../graphics/font/BD_Cartoon_Shout.ttf', 30)
     self.score = 0
+    self.start_offset = 0
+
+    #menu
+    self.menu_surface = pygame.image.load('../graphics/ui/menu.png').convert_alpha()
+
+    self.menu_rect = self.menu_surface.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
 
   def display_score(self):
-    self.score = pygame.time.get_ticks() // 1000
+
+    if self.active:
+      self.score = (pygame.time.get_ticks() - self.start_offset) // 1000
+      y =  WINDOW_HEIGHT / 10
+    else:
+      y = WINDOW_HEIGHT / 2 + (self.menu_rect.height / 1.5)
 
     score_surface = self.font.render(str(self.score), True, 'black')
-    score_rect = score_surface.get_rect(midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 10))
+    score_rect = score_surface.get_rect(midtop = (WINDOW_WIDTH / 2, y))
     self.display_surface.blit(score_surface, score_rect)
 
   def collisions(self):
     if pygame.sprite.spritecollide(self.player, self.collision_sprites, False, pygame.sprite.collide_mask) \
       or self.player.rect.top <= 0:
-      pygame.quit()
-      sys.exit()
+      for sprite in self.collision_sprites:
+        if sprite.sprite_type == 'obstacle':
+          sprite.kill()
+      self.active = False
+      self.player.kill()
 
   def run(self):
     last_time = time.time()
@@ -57,16 +73,25 @@ class Game():
           pygame.quit()
           sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-          self.player.jump()
-        if event.type == self.obstacle_timer:
+          if self.active:
+            self.player.jump()
+          else: 
+            self.player = Player(self.all_sprites, self.scale / 1.5)
+            self.active = True
+            self.start_offset = pygame.time.get_ticks()
+        if event.type == self.obstacle_timer and self.active:
           Obstacle([self.all_sprites, self.collision_sprites], self.scale * 1.05)
 
       #game logic
       self.display_surface.fill('black')
       self.all_sprites.update(dt)
-      self.collisions()
       self.all_sprites.draw(self.display_surface)
       self.display_score()
+
+      if self.active: 
+        self.collisions()
+      else:
+        self.display_surface.blit(self.menu_surface, self.menu_rect)
 
       pygame.display.update()
       self.clock.tick(FPS)
