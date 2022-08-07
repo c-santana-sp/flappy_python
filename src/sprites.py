@@ -44,3 +44,52 @@ class Ground(pygame.sprite.Sprite):
       self.position.x = 0
 
     self.rect.x = round(self.position.x)
+
+class Player(pygame.sprite.Sprite):
+  def __init__(self, groups, scale):
+    super().__init__(groups)
+
+    #image
+    self.import_frames(scale)
+    self.frame_index = 0
+    self.image = self.frames[self.frame_index]
+
+    #rect
+    self.rect = self.image.get_rect(midleft = (WINDOW_WIDTH / 20, WINDOW_HEIGHT / 2))
+    self.position = pygame.math.Vector2(self.rect.topleft)
+
+    #movement
+    self.gravity = GRAVITY_VEL
+    self.direction = 0
+
+  def import_frames(self, scale):
+    self.frames = []
+
+    for i in range(3):
+      # print(i)
+      current_img = pygame.image.load(f'../graphics/plane/red{i}.png').convert_alpha()
+      img = pygame.transform.scale(current_img, pygame.math.Vector2(current_img.get_size()) * scale)
+      self.frames.append(img)
+
+  def update(self, dt):
+    self.apply_gravity(dt)
+    self.animate(dt)
+    self.rotate()
+
+  def apply_gravity(self, dt):
+    self.direction += self.gravity * dt
+    self.position.y += self.direction * dt
+    self.rect.y = round(self.position.y)
+
+  def jump(self):
+    self.direction = JUMP_VEL
+
+  def animate(self, dt):
+    self.frame_index += PLAYER_ANIMATION_SPEED * dt
+    if self.frame_index >= len(self.frames):
+      self.frame_index = 0
+    self.image = self.frames[int(self.frame_index)]
+
+  def rotate(self):
+    rotated_plane = pygame.transform.rotozoom(self.image, -self.direction * PLAYER_ROTATION_SPEED, 1)
+    self.image = rotated_plane

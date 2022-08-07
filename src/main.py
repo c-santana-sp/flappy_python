@@ -1,6 +1,6 @@
 import pygame, sys, time
 from settings import *
-from sprites import BG, Ground
+from sprites import BG, Ground, Player
 
 class Game():
   def __init__(self):
@@ -16,11 +16,11 @@ class Game():
     #scale factor
     bg_height = pygame.image.load('../graphics/environment/background.png').get_height()
     self.scale = WINDOW_HEIGHT / bg_height
-    # print(self.scale)
 
     #sprite setup
     BG(self.all_sprites, self.scale)
     Ground(self.all_sprites, self.scale)
+    self.player = Player(self.all_sprites, self.scale / 1.5)
 
   def run(self):
     last_time = time.time()
@@ -34,6 +34,8 @@ class Game():
         if event.type == pygame.QUIT:
           pygame.quit()
           sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+          self.player.jump()
 
       #game logic
       self.display_surface.fill('black')
