@@ -19,12 +19,18 @@ class Game():
 
     #sprite setup
     BG(self.all_sprites, self.scale)
-    Ground(self.all_sprites, self.scale)
+    Ground([self.all_sprites, self.collision_sprites], self.scale)
     self.player = Player(self.all_sprites, self.scale / 1.5)
 
     #timer
     self.obstacle_timer = pygame.USEREVENT + 1
     pygame.time.set_timer(self.obstacle_timer, OBSTACLE_SPAWN_TIMEOUT)
+
+  def collisions(self):
+    if pygame.sprite.spritecollide(self.player, self.collision_sprites, False, pygame.sprite.collide_mask) \
+      or self.player.rect.top <= 0:
+      pygame.quit()
+      sys.exit()
 
   def run(self):
     last_time = time.time()
@@ -41,11 +47,12 @@ class Game():
         if event.type == pygame.MOUSEBUTTONDOWN:
           self.player.jump()
         if event.type == self.obstacle_timer:
-          Obstacle(self.all_sprites, self.scale * 1.1)
+          Obstacle([self.all_sprites, self.collision_sprites], self.scale * 1.05)
 
       #game logic
       self.display_surface.fill('black')
       self.all_sprites.update(dt)
+      self.collisions()
       self.all_sprites.draw(self.display_surface)
 
       pygame.display.update()
