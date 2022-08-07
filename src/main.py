@@ -5,6 +5,7 @@ from sprites import BG, Ground, Obstacle, Player
 class Game():
   def __init__(self):
     pygame.init()
+    pygame.font.init()
     self.display_surface = pygame.display.set_mode( (WINDOW_WIDTH, WINDOW_HEIGHT) )
     pygame.display.set_caption('Flappy Python')
     self.clock = pygame.time.Clock()
@@ -25,6 +26,17 @@ class Game():
     #timer
     self.obstacle_timer = pygame.USEREVENT + 1
     pygame.time.set_timer(self.obstacle_timer, OBSTACLE_SPAWN_TIMEOUT)
+
+    #text
+    self.font = pygame.font.Font('../graphics/font/BD_Cartoon_Shout.ttf', 30)
+    self.score = 0
+
+  def display_score(self):
+    self.score = pygame.time.get_ticks() // 1000
+
+    score_surface = self.font.render(str(self.score), True, 'black')
+    score_rect = score_surface.get_rect(midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 10))
+    self.display_surface.blit(score_surface, score_rect)
 
   def collisions(self):
     if pygame.sprite.spritecollide(self.player, self.collision_sprites, False, pygame.sprite.collide_mask) \
@@ -54,6 +66,7 @@ class Game():
       self.all_sprites.update(dt)
       self.collisions()
       self.all_sprites.draw(self.display_surface)
+      self.display_score()
 
       pygame.display.update()
       self.clock.tick(FPS)
