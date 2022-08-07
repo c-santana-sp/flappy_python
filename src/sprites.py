@@ -24,3 +24,23 @@ class BG(pygame.sprite.Sprite):
       self.position.x = 0
 
     self.rect.x = round(self.position.x)
+
+class Ground(pygame.sprite.Sprite):
+  def __init__(self, groups, scale):
+    super().__init__(groups)
+
+    #image
+    ground_surface = pygame.image.load('../graphics/environment/ground.png').convert_alpha()
+    self.image = pygame.transform.scale(ground_surface, pygame.math.Vector2(ground_surface.get_size()) * scale)
+
+    #position
+    self.rect = self.image.get_rect(bottomleft = (0, WINDOW_HEIGHT))
+    self.position = pygame.math.Vector2(self.rect.bottomleft)
+
+  def update(self, dt):
+    self.position.x -= GROUND_VEL * dt
+
+    if self.rect.centerx <= 0:
+      self.position.x = 0
+
+    self.rect.x = round(self.position.x)
