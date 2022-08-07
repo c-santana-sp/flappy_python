@@ -12,6 +12,11 @@ class Game():
     self.clock = pygame.time.Clock()
     self.active = True
 
+    #sound
+    self.background_sound = pygame.mixer.Sound('../sounds/music.wav')
+    self.background_sound.set_volume(BACKGROUND_SOUND_VOLUME)
+    self.background_sound.play(loops = -1)
+
     #sprite groups
     self.all_sprites = pygame.sprite.Group()
     self.collision_sprites = pygame.sprite.Group()
@@ -80,7 +85,7 @@ class Game():
             self.active = True
             self.start_offset = pygame.time.get_ticks()
         if event.type == self.obstacle_timer and self.active:
-          Obstacle([self.all_sprites, self.collision_sprites], self.scale * 1.05)
+          Obstacle([self.all_sprites, self.collision_sprites], self.scale * OBSTACLE_SCALE)
 
       #game logic
       self.display_surface.fill('black')

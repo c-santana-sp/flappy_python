@@ -70,6 +70,10 @@ class Player(pygame.sprite.Sprite):
     #mask
     self.mask = pygame.mask.from_surface(self.image)
 
+    #sound
+    self.jump_sound = pygame.mixer.Sound('../sounds/jump.wav')
+    self.jump_sound.set_volume(PLAYER_JUMP_SOUND_VOLUME)
+
   def import_frames(self, scale):
     self.frames = []
 
@@ -90,6 +94,7 @@ class Player(pygame.sprite.Sprite):
     self.rect.y = round(self.position.y)
 
   def jump(self):
+    self.jump_sound.play()
     self.direction = JUMP_VEL
 
   def animate(self, dt):
