@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+from random import choice, randint
 
 class BG(pygame.sprite.Sprite):
   def __init__(self, groups, scale):
@@ -93,3 +94,31 @@ class Player(pygame.sprite.Sprite):
   def rotate(self):
     rotated_plane = pygame.transform.rotozoom(self.image, -self.direction * PLAYER_ROTATION_SPEED, 1)
     self.image = rotated_plane
+
+class Obstacle(pygame.sprite.Sprite):
+  def __init__(self, groups, scale):
+    super().__init__(groups)
+    
+    orientation = choice(('up', 'down'))
+    surf = pygame.image.load(f'../graphics/obstacles/{choice((0, 1))}.png').convert_alpha()
+
+    self.image = pygame.transform.scale(surf, pygame.math.Vector2(surf.get_size()) * scale)
+
+    x = WINDOW_WIDTH + randint(40, 100)
+
+    if orientation == 'up':
+      y = WINDOW_HEIGHT + randint(10, 50)
+      self.rect = self.image.get_rect(midbottom = (x, y))
+    else:
+      y = randint(-50, -10)
+      self.image = pygame.transform.flip(self.image, False, True)
+      self.rect = self.image.get_rect(midtop = (x, y))
+
+    self.position = pygame.math.Vector2(self.rect.topleft)
+
+  def update(self, dt):
+    self.position.x -= OBSTACLE_VEL * dt
+    self.rect.x = round(self.position.x)
+    
+    if self.rect.right <= -self.image.get_width() + 10:
+      self.kill()

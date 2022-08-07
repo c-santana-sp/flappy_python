@@ -1,6 +1,6 @@
 import pygame, sys, time
 from settings import *
-from sprites import BG, Ground, Player
+from sprites import BG, Ground, Obstacle, Player
 
 class Game():
   def __init__(self):
@@ -22,6 +22,10 @@ class Game():
     Ground(self.all_sprites, self.scale)
     self.player = Player(self.all_sprites, self.scale / 1.5)
 
+    #timer
+    self.obstacle_timer = pygame.USEREVENT + 1
+    pygame.time.set_timer(self.obstacle_timer, OBSTACLE_SPAWN_TIMEOUT)
+
   def run(self):
     last_time = time.time()
     while True:
@@ -36,6 +40,8 @@ class Game():
           sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
           self.player.jump()
+        if event.type == self.obstacle_timer:
+          Obstacle(self.all_sprites, self.scale * 1.1)
 
       #game logic
       self.display_surface.fill('black')
